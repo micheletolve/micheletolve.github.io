@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html lang="it">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Quiz Archiviazione Documentale</title>
+    <link href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            background: #f5f5f5;
+        }
+
+        #result {
+            display: none;
+        }
+
+        #printBtn {
+            display: none;
+            /* Pulsante Stampa nascosto inizialmente */
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+
+        @media print {
+
+            #submitBtn,
+            #printBtn,
+            #exportBtn,
+            .input,
+            .button.is-primary {
+                display: none !important;
+            }
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #result,
+            #result * {
+                visibility: visible;
+            }
+
+            #result {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title has-text-centered">Quiz Archiviazione Documentale</h1>
+            <form id="quizForm">
+                <div class="box">
+                    <h2 class="subtitle">Dati Partecipante</h2>
+                    <div class="field">
+                        <label class="label">Nome</label>
+                        <div class="control">
+                            <input class="input" id="nome" required="" type="text" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Cognome</label>
+                        <div class="control">
+                            <input class="input" id="cognome" required="" type="text" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Corso</label>
+                        <div class="control">
+                            <input class="input" id="corso" required="" type="text" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Data</label>
+                        <div class="control">
+                            <input class="input" id="data" required="" type="date" />
+                        </div>
+                    </div>
+                </div>
+                <div id="quizContainer"></div>
+            </form>
+            <div class="has-text-centered mt-5 mb-5">
+                <button class="button is-primary is-large" id="submitBtn">Correggi e Mostra Risultati</button>
+                <button class="button is-warning is-large" id="exportBtn">Esporta Domande in Word</button>
+                <button class="button is-info is-large" id="printBtn">Stampa Risultati</button>
+            </div>
+            <div class="box" id="result"></div>
+        </div>
+    </section>
+    <script>
+        const quizData = [
+            {
+                question: "Quali tra questi documenti rientrano solitamente in un sistema di archiviazione documentale?",
+                options: [
+                    "Fatture",
+                    "Contratti",
+                    "Post su social media",
+                    "Documenti tecnici"
+                ],
+                correct: [
+                    0,
+                    1,
+                    3
+                ]
+            },
+            {
+                question: "Quali sono i principali vantaggi dell’archiviazione digitale rispetto a quella cartacea?",
+                options: [
+                    "Riduzione degli spazi fisici",
+                    "Maggiore accessibilità ai documenti",
+                    "Aumento dei costi di gestione",
+                    "Migliore sicurezza (se gestita correttamente)"
+                ],
+                correct: [
+                    0,
+                    1,
+                    3
+                ]
+            },
+            {
+                question: "Quale delle seguenti non è una caratteristica di un documento digitale?",
+                options: [
+                    "Autenticità",
+                    "Volatilità",
+                    "Integrità",
+                    "Affidabilità"
+                ],
+                correct: [
+                    1
+                ]
+            },
+            {
+                question: "Quale delle seguenti opzioni rappresenta l'ordine corretto delle fasi della gestione del documento digitale",
+                options: [
+                    "Archiviazione, Creazione, Gestione, Conservazione",
+                    "Gestione, Creazione, Archiviazione, Conservazione",
+                    "Creazione, Gestione, Conservazione, Archiviazione",
+                    "Conservazione, Creazione, Gestione, Archiviazione"
+                ],
+                correct: [
+                    2
+                ]
+            },
+            {
+                question: "Quale delle seguenti affermazioni descrive correttamente la conservazione digitale a norma?",
+                options: [
+                    "È il processo che permette di modificare i documenti digitali nel tempo per aggiornarne il contenuto",
+                    "È la semplice archiviazione di documenti digitali su un dispositivo di memoria",
+                    "È il processo che garantisce il mantenimento nel tempo del valore legale di un documento digitale, sostituendo definitivamente il cartaceo",
+                    "È un metodo per stampare e conservare copie cartacee di documenti digitali"
+                ],
+                correct: [
+                    2
+                ]
+            },
+            {
+                question: "Cos'è un archivio digitale?",
+                options: [
+                    "Un insieme di file cartacei scannerizzati",
+                    "Un software per la gestione di documenti",
+                    "Un archivio online con accesso remoto",
+                    "Un archivio fisico che supporta solo supporti digitali"
+                ],
+                correct: [
+                    1,
+                    2
+                ]
+            },
+            {
+                question: "Quali di questi metodi possono migliorare la ricerca di un documento archiviato?",
+                options: [
+                    "Creare una struttura di cartelle ben organizzata",
+                    "Utilizzare tag o parole chiave per ogni documento",
+                    "Archiviare solo su supporti fisici",
+                    "Salvare file senza una nomenclatura specifica"
+                ],
+                correct: [
+                    0,
+                    1
+                ]
+            },
+            {
+                question: "Cosa significa la sigla DMS in ambito di archiviazione documentale?",
+                options: [
+                    "Document Management System",
+                    "Document Memory Storage",
+                    "Digital Management Software",
+                    "Document Machine Service"
+                ],
+                correct: [
+                    0
+                ]
+            },
+            {
+                question: "Qual è il principale vantaggio della digitalizzazione dei documenti?",
+                options: [
+                    "Riduzione della carta",
+                    "Facilità di condivisione e accesso remoto",
+                    "Aumento della sicurezza",
+                    "Miglioramento della qualità delle immagini"
+                ],
+                correct: [
+                    1,
+                    2
+                ]
+            },
+            {
+                question: "Quali sono le normative che regolano l'archiviazione documentale in Italia?",
+                options: [
+                    "Legge 241/90",
+                    "Regolamento UE 2016/679 (GDPR)",
+                    "Codice Civile Italiano",
+                    "Legge 196/03"
+                ],
+                correct: [
+                    0,
+                    1
+                ]
+            },
+            {
+                question: "Cos'è il metadata in un sistema di archiviazione documentale?",
+                options: [
+                    "Informazioni aggiuntive che descrivono il documento",
+                    "Un elemento di sicurezza per criptare i documenti",
+                    "Il formato di un file",
+                    "La dimensione di un file digitale"
+                ],
+                correct: [
+                    0
+                ]
+            },
+            {
+                question: "Cos'è la conservazione sostitutiva?",
+                options: [
+                    "L'archiviazione digitale di documenti originali",
+                    "La creazione di una copia cartacea di documenti digitali",
+                    "La distruzione di documenti cartacei",
+                    "La stampa di documenti digitali"
+                ],
+                correct: [
+                    0
+                ]
+            },
+            {
+                question: "Qual è l'importanza della firma digitale nella gestione documentale?",
+                options: [
+                    "Certifica l'autenticità e l'integrità del documento",
+                    "Permette di archiviare i documenti in modo più rapido",
+                    "Facilita la ricerca dei documenti",
+                    "Non ha alcuna importanza in archiviazione documentale"
+                ],
+                correct: [
+                    0
+                ]
+            },
+            {
+                question: "Cosa rappresenta l'archiviazione a lungo termine?",
+                options: [
+                    "Conservazione di documenti per più di 10 anni",
+                    "Memorizzazione di documenti in modo che non possano essere modificati",
+                    "Archiviazione di documenti che sono utilizzati raramente",
+                    "Conservazione esclusivamente su cloud"
+                ],
+                correct: [
+                    0,
+                    2
+                ]
+            },
+            {
+                question: "Quali tra queste caratteristiche sono importanti per un buon sistema di archiviazione documentale?",
+                options: [
+                    "Sicurezza",
+                    "Facilità d'uso",
+                    "Accessibilità remota",
+                    "Tutti i sopra menzionati"
+                ],
+                correct: [
+                    3
+                ]
+            }
+        ];
+
+        const form = document.getElementById("quizForm");
+        const container = document.getElementById("quizContainer");
+        const resultDiv = document.getElementById("result");
+        const exportBtn = document.getElementById("exportBtn");
+        const submitBtn = document.getElementById("submitBtn");
+        const printBtn = document.getElementById("printBtn");
+
+        let userAnswers = []; // Variabile per memorizzare le risposte dell'utente
+        let score = 0; // Variabile per memorizzare il punteggio finale
+
+        // Leggere la query string per il parametro "modo"
+        const urlParams = new URLSearchParams(window.location.search);
+        const isCorrettore = urlParams.get("modo") === "2"; // Se il modo è 2, siamo in modalità correttore
+        const modoText = isCorrettore ? "Modalità Correttore" : "Modalità Quiz";
+
+        document.getElementById('printBtn').addEventListener('click', function () {
+            window.print();
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', function () {
+            let content = "Domande del Quiz Archiviazione Documentale\n\n";
+
+            quizData.forEach((q, i) => {
+                content += `${i + 1}. ${q.question}\n`;
+                q.options.forEach((opt, j) => {
+                    content += `   ${String.fromCharCode(97 + j)}) ${opt}`;
+                    // Se siamo in modalità correttore, aggiungiamo un asterisco accanto alla risposta corretta
+                    if (isCorrettore && q.correct.includes(j)) {
+                        content += ` *\n`; // Aggiungiamo l'asterisco
+                    } else {
+                        content += `\n`;
+                    }
+                });
+                content += `\n`;
+            });
+
+            const blob = new Blob([content], { type: "application/msword" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Domande_Quiz.doc";
+            link.click();
+        });
+
+        // Creazione delle domande e delle opzioni
+        quizData.forEach((q, i) => {
+            const box = document.createElement("div");
+            box.className = "box";
+
+            const title = document.createElement("h3");
+            title.className = "title is-5";
+            title.textContent = `${i + 1}. ${q.question}`;
+            box.appendChild(title);
+            const subTitle = document.createElement("p");
+            subTitle.className = "title is-7 has-text-info";
+            let isMultipleResponse = q.correct.length > 1 ? "⚠️⚠️ Sono previste più risposte corrette" : "⚠️ È prevista una sola risposta corretta";
+            subTitle.textContent = `${isMultipleResponse}`;
+            box.appendChild(subTitle);
+
+
+            q.options.forEach((opt, j) => {
+                const field = document.createElement("div");
+                field.className = "field";
+
+                const control = document.createElement("div");
+                control.className = "control";
+
+                const label = document.createElement("label");
+                label.className = "checkbox";
+                label.innerHTML = `<input type="checkbox" name="q${i}" value="${j}"> ${opt}`;
+
+                // Se siamo in modalità correttore, aggiungiamo un asterisco accanto alla risposta corretta
+                if (isCorrettore && q.correct.includes(j)) {
+                    label.innerHTML += " <strong>*</strong>"; // Aggiungiamo l'asterisco
+                }
+
+                control.appendChild(label);
+                field.appendChild(control);
+                box.appendChild(field);
+            });
+
+            container.appendChild(box);
+        });
+
+        // Evento per la correzione e visualizzazione dei risultati
+        document.getElementById("submitBtn").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const nome = document.getElementById("nome").value.trim();
+            const cognome = document.getElementById("cognome").value.trim();
+            const corso = document.getElementById("corso").value.trim();
+            const data = document.getElementById("data").value;
+
+            if (!nome || !cognome || !corso || !data) {
+                alert("Compila tutti i campi prima di correggere il quiz.");
+                return;
+            }
+
+            userAnswers = quizData.map((q, i) => {
+                const inputs = form.querySelectorAll(`input[name=q${i}]:checked`);
+                return Array.from(inputs).map(input => parseInt(input.value));
+            });
+
+            score = 0; // Resetta il punteggio
+            let output = `<h2 class="title is-1 has-text-centered">Risultato del Quiz di</h2>
+        <p class="is-size-4 has-text-centered"><strong>Nome:</strong> ${nome}, <strong>Cognome:</strong> ${cognome}, <strong>Corso:</strong> ${corso}, <strong>Data:</strong> ${data}</p> <br/>
+        <ol class="ml-5">`;
+
+            quizData.forEach((q, i) => {
+                const correct = q.correct.slice().sort().join(',');
+                const given = userAnswers[i].slice().sort().join(',');
+                const isCorrect = correct === given;
+                if (isCorrect) score++;
+                output += `<li><strong>${q.question}</strong><br>
+                    Risposta corretta: ${q.correct.map(index => q.options[index]).join(', ')}<br>
+                    Tua risposta: ${userAnswers[i].map(index => q.options[index]).join(', ') || 'Nessuna'}<br>
+                    <span class="${isCorrect ? 'correct' : 'incorrect'}">
+                      ${isCorrect ? '✔️ Corretta' : '❌ Sbagliata'}
+                    </span>
+                  </li><br>`;
+            });
+
+            output += `</ol><h3 class="subtitle">Punteggio finale: ${score} su ${quizData.length}</h3>`;
+            resultDiv.innerHTML = output;
+            resultDiv.style.display = "block";
+            printBtn.style.display = "block";
+            window.scrollTo(0, resultDiv.offsetTop);
+        });
+    </script>
+</body>
+
+</html>
