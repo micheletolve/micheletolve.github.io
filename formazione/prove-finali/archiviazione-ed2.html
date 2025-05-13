@@ -6,7 +6,8 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Quiz Archiviazione Documentale</title>
-    <link href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
@@ -63,7 +64,7 @@
 <body>
     <section class="section">
         <div class="container">
-            <h1 class="title has-text-centered">Quiz Archiviazione Documentale</h1>
+            <h1 class="title has-text-centered">Prova Finale</h1>
             <form id="quizForm">
                 <div class="box">
                     <h2 class="subtitle">Dati Partecipante</h2>
@@ -95,9 +96,9 @@
                 <div id="quizContainer"></div>
             </form>
             <div class="has-text-centered mt-5 mb-5">
-                <button class="button is-primary is-large" id="submitBtn">Correggi e Mostra Risultati</button>
-                <button class="button is-warning is-large" id="exportBtn">Esporta Domande in Word</button>
-                <button class="button is-info is-large" id="printBtn">Stampa Risultati</button>
+                <button class="button is-primary is-medium" id="submitBtn">Correggi e Mostra Risultati</button>
+                <button class="button is-warning is-medium" id="exportBtn">Esporta Domande in Word</button>
+                <button class="button is-info is-medium" id="printBtn">Stampa Risultati</button>
             </div>
             <div class="box" id="result"></div>
         </div>
@@ -334,7 +335,7 @@
             const blob = new Blob([content], { type: "application/msword" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "Domande_Quiz.doc";
+            link.download = `Domande-ProvaFinale-"${moment(Date.now()).format("DD/MM/YYYY")}".doc`;
             link.click();
         });
 
@@ -348,7 +349,7 @@
             title.textContent = `${i + 1}. ${q.question}`;
             box.appendChild(title);
             const subTitle = document.createElement("p");
-            subTitle.className = "title is-7 has-text-info";
+            subTitle.className = "title is-7 has-text-primary is-uppercase is-family-monospace";
             let isMultipleResponse = q.correct.length > 1 ? "⚠️⚠️ Sono previste più risposte corrette" : "⚠️ È prevista una sola risposta corretta";
             subTitle.textContent = `${isMultipleResponse}`;
             box.appendChild(subTitle);
@@ -385,7 +386,7 @@
             const nome = document.getElementById("nome").value.trim();
             const cognome = document.getElementById("cognome").value.trim();
             const corso = document.getElementById("corso").value.trim();
-            const data = document.getElementById("data").value;
+            const data = moment(document.getElementById("data").value, "YYYY-MM-DD").format("DD/MM/YYYY");
 
             if (!nome || !cognome || !corso || !data) {
                 alert("Compila tutti i campi prima di correggere il quiz.");
