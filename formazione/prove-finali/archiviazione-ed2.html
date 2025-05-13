@@ -321,7 +321,7 @@
             quizData.forEach((q, i) => {
                 content += `${i + 1}. ${q.question}\n`;
                 q.options.forEach((opt, j) => {
-                    content += `   ${String.fromCharCode(97 + j)}) ${opt}`;
+                    content += `${String.fromCharCode(97 + j)}) ${opt}`;
                     // Se siamo in modalità correttore, aggiungiamo un asterisco accanto alla risposta corretta
                     if (isCorrettore && q.correct.includes(j)) {
                         content += ` *\n`; // Aggiungiamo l'asterisco
@@ -368,7 +368,7 @@
 
                 // Se siamo in modalità correttore, aggiungiamo un asterisco accanto alla risposta corretta
                 if (isCorrettore && q.correct.includes(j)) {
-                    label.innerHTML += " <strong>*</strong>"; // Aggiungiamo l'asterisco
+                    label.innerHTML += " <strong>✔️ Corretta</strong>"; // Aggiungiamo l'asterisco
                 }
 
                 control.appendChild(label);
