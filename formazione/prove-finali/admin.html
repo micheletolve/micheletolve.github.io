@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannello Amministratore - Sistema Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+    <script src="quiz.js"></script>
+    <script src="auth-guard.js"></script>
+</head>
+
+<body class="admin-protected">
+    <!-- Protezione se JavaScript è disabilitato -->
+    <noscript>
+        <div
+            style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+            <h1 style="color: #f14668; margin-bottom: 1rem;">⚠️ Accesso Negato</h1>
+            <p style="margin-bottom: 1rem;">JavaScript è richiesto per accedere al pannello amministratore.</p>
+            <a href="login.html" style="color: #3273dc; text-decoration: underline;">← Torna al Login</a>
+        </div>
+    </noscript>
+
+    <!-- Il contenuto rimane nascosto finché l'autenticazione non è verificata -->
+
+    <nav class="navbar is-primary" role="navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="#">
+                <strong>🎯 Sistema Quiz - Pannello Admin</strong>
+            </a>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a href="index.html" class="button is-light">
+                            <strong>Vai al Quiz</strong>
+                        </a>
+                        <a href="#" id="logoutBtn" class="button is-danger">
+                            <strong>Logout</strong>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="admin-panel">
+            <div class="admin-header">
+                <div>
+                    <h1 class="title is-3">Gestione Domande Quiz</h1>
+                    <p class="subtitle is-6">Aggiungi, modifica e gestisci le domande per tutti i corsi</p>
+                </div>
+                <div class="field has-addons">
+                    <div class="control">
+                        <div class="select">
+                            <select id="categoryFilter">
+                                <option value="all">Tutte le categorie</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <button class="button is-info" id="refreshBtn">🔄 Aggiorna</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="columns">
+                <div class="column is-5">
+                    <div class="question-form">
+                        <h3 class="title is-5">
+                            <span id="formTitle">➕ Aggiungi Nuova Domanda</span>
+                        </h3>
+
+                        <form id="questionForm">
+                            <input type="hidden" id="editingIndex" value="">
+
+                            <div class="field">
+                                <label class="label">Categoria</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select id="questionCategory" required>
+                                            <option value="">Seleziona categoria</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label">Domanda</label>
+                                <div class="control">
+                                    <textarea class="textarea" id="questionText"
+                                        placeholder="Inserisci il testo della domanda..." rows="3" required></textarea>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label">
+                                    Tipo di Domanda
+                                    <span class="tooltip">
+                                        ❓
+                                        <span class="tooltiptext">
+                                            Singola: una sola risposta corretta<br>
+                                            Multipla: più risposte corrette
+                                        </span>
+                                    </span>
+                                </label>
+                                <div class="control">
+                                    <label class="radio">
+                                        <input type="radio" name="questionType" value="single" checked>
+                                        Risposta Singola
+                                    </label>
+                                    <label class="radio">
+                                        <input type="radio" name="questionType" value="multiple">
+                                        Risposte Multiple
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label">Opzioni di Risposta</label>
+                                <div id="optionsContainer">
+                                    <!-- Le opzioni verranno generate dinamicamente -->
+                                </div>
+                                <div class="control mt-2">
+                                    <button type="button" class="button is-small is-light" id="addOptionBtn">
+                                        ➕ Aggiungi Opzione
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="field is-grouped">
+                                <div class="control">
+                                    <button type="submit" class="button is-primary" id="saveBtn">
+                                        💾 Salva Domanda
+                                    </button>
+                                </div>
+                                <div class="control">
+                                    <button type="button" class="button is-light" id="cancelBtn">
+                                        ❌ Annulla
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="column is-7">
+                    <div class="box">
+                        <h3 class="title is-5">📝 Elenco Domande Esistenti</h3>
+                        <div class="field">
+                            <div class="control has-icons-left">
+                                <input class="input" type="text" id="searchInput" placeholder="Cerca nelle domande...">
+                                <span class="icon is-left">🔍</span>
+                            </div>
+                        </div>
+                        <div id="questionsStats" class="message is-info">
+                            <div class="message-body">
+                                Totale domande: <strong id="totalCount">0</strong> |
+                                Visualizzate: <strong id="filteredCount">0</strong>
+                            </div>
+                        </div>
+                        <div class="questions-list" id="questionsList">
+                            <!-- Le domande verranno caricate qui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-panel">
+            <h3 class="title is-4">⚙️ Azioni di Sistema</h3>
+            <div class="columns">
+                <div class="column">
+                    <div class="field">
+                        <label class="label">Esporta Domande</label>
+                        <div class="control">
+                            <button class="button is-warning is-fullwidth" id="exportBtn">
+                                📤 Esporta backup (JSON)
+                            </button>
+                        </div>
+                        <div class="control mt-2">
+                            <button class="button is-success is-fullwidth" id="exportQuizJSBtn">
+                                💾 Genera quiz.js
+                            </button>
+                        </div>
+                        <p class="help">JSON: backup per importazione<br>quiz.js: file per aggiornare il sistema</p>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <label class="label">Importa Domande</label>
+                        <div class="control">
+                            <input type="file" class="input" id="importFile" accept=".json">
+                        </div>
+                        <div class="control mt-2">
+                            <button class="button is-info is-fullwidth" id="importBtn">
+                                📥 Importa domande da JSON
+                            </button>
+                        </div>
+                        <p class="help">Carica domande da un file JSON di backup</p>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <label class="label">Reset Sistema</label>
+                        <div class="control">
+                            <button class="button is-danger is-fullwidth" id="resetBtn">
+                                ⚠️ Reset completo
+                            </button>
+                        </div>
+                        <p class="help">Elimina tutte le domande (irreversibile)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal di conferma -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Conferma Azione</p>
+                <button class="delete" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <p id="confirmMessage">Sei sicuro di voler procedere?</p>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-danger" id="confirmYes">Sì, procedi</button>
+                <button class="button" id="confirmNo">Annulla</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="firebase-config.js" type="module"></script>
+    <script src="firebase-service.js" defer></script>
+    <script src="admin.js" defer></script>
+</body>
+
+</html>

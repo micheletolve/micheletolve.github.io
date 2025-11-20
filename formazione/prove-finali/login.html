@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Amministratore - Sistema Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">
+                🔐
+            </div>
+            <h1 class="title is-4">Accesso Amministratore</h1>
+            <p class="subtitle is-6">Sistema di Gestione Quiz</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="field">
+                <label class="label">Nome Utente</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="text" id="username" placeholder="Inserisci il nome utente" required>
+                    <span class="icon is-small is-left">
+                        👤
+                    </span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Password</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="password" id="password" placeholder="Inserisci la password" required>
+                    <span class="icon is-small is-left">
+                        🔑
+                    </span>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-primary is-fullwidth" type="submit">
+                        <strong>Accedi</strong>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div id="errorMessage" class="message error" style="display: none;">
+            <div class="message-body">
+                Credenziali non valide. Riprova.
+            </div>
+        </div>
+
+        <div class="has-text-centered mt-4">
+            <a href="index.html" class="button is-light is-small">
+                ← Torna al Quiz
+            </a>
+        </div>
+
+        <div class="has-text-centered mt-5">
+            <p class="is-size-7 has-text-grey">
+                Sistema Quiz v2.0 - Michele Tolve<br>
+                <strong>Credenziali di default:</strong><br>
+                Username: admin | Password: admin123
+            </p>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+
+</html>
